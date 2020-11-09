@@ -1049,6 +1049,27 @@ class Room {
     });
   }
 
+  leaveRoom() {
+    return new Promise((resolve, reject) => {
+      try {
+        var register = {
+          "request": "leave"
+        };
+        config.videoRoomHandler.send({
+          "message": register,
+          success: function (result) {
+            resolve(result);
+          },
+          error: function (err) {
+            reject(err);
+          }
+        });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
   removeRoom() {
     return new Promise((resolve, reject) => {
       try {
