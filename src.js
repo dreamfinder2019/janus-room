@@ -38,7 +38,7 @@ function publishOwnFeed(opts, cb) {
         data: true,
       }, // Publishers are sendonly
       simulcast: doSimulcast,
-      success: function(jsep) {
+      success: function (jsep) {
         Janus.debug("Got publisher SDP!");
         Janus.debug(jsep);
         var publish = {
@@ -56,7 +56,7 @@ function publishOwnFeed(opts, cb) {
           cb();
         }
       },
-      error: function(error) {
+      error: function (error) {
         Janus.error("WebRTC error:", error);
         if (opts && opts.audioSend) {
           publishOwnFeed({
@@ -79,10 +79,10 @@ function unpublishOwnFeed() {
     if (config.token) unpublish.token = config.token;
     config.videoRoomHandler.send({
       "message": unpublish,
-      success: function(){
+      success: function () {
         resolve();
       },
-      error: function(err) {
+      error: function (err) {
         reject(err);
       }
     });
@@ -101,7 +101,7 @@ function shareScreen(cb) {
         videoSend: true,
         data: true,
       }, // Publishers are sendonly
-      success: function(jsep) {
+      success: function (jsep) {
         Janus.debug("Got publisher SDP!");
         Janus.debug(jsep);
         var publish = {
@@ -117,7 +117,7 @@ function shareScreen(cb) {
           "jsep": jsep
         });
       },
-      error: function(error) {
+      error: function (error) {
         Janus.error("WebRTC error:", error);
         if (cb) {
           cb(error);
@@ -141,7 +141,7 @@ function startRecording(options) {
       // pass a ?simulcast=true when opening this demo page: it will turn
       // the following 'simulcast' property to pass to janus.js to true
       simulcast: doSimulcast,
-      success: function(jsep) {
+      success: function (jsep) {
         Janus.debug("Got SDP!");
         Janus.debug(jsep);
         var body = {
@@ -153,7 +153,7 @@ function startRecording(options) {
           "jsep": jsep
         });
       },
-      error: function(error) {
+      error: function (error) {
         Janus.error("WebRTC error...", error);
         bootbox.alert("WebRTC error... " + error);
         config.recordPlayHandler.hangup();
@@ -168,10 +168,10 @@ function stopPlayback() {
     };
     config.recordPlayHandler.send({
       "message": stop,
-      success: function() {
+      success: function () {
         resolve();
       },
-      error: function(err) {
+      error: function (err) {
         reject(err);
       }
     });
@@ -191,24 +191,24 @@ function start() {
         {
           server: config.server,
           token: config.token,
-          success: function() {
+          success: function () {
 
             // Attach to video room plugin
             config.janus.attach(
               {
                 plugin: "janus.plugin.videoroom",
                 opaqueId: config.opaqueId,
-                success: function(pluginHandle) {
+                success: function (pluginHandle) {
                   config.videoRoomHandler = window.myfeed = pluginHandle;
                   Janus.log("Plugin attached! (" + config.videoRoomHandler.getPlugin() + ", id=" + config.videoRoomHandler.getId() + ")");
                   Janus.log("  -- This is a publisher/manager");
                   resolve();
                 },
-                error: function(error) {
+                error: function (error) {
                   Janus.error("  -- Error attaching plugin...", error);
                   config.onError("Error attaching plugin... " + error);
                 },
-                consentDialog: function(on) {
+                consentDialog: function (on) {
                   Janus.debug("Consent dialog should be " + (on ? "on" : "off") + " now");
                   if (on) {
                     // Darken screen and show hint
@@ -216,14 +216,14 @@ function start() {
                     // Restore screen
                   }
                 },
-                mediaState: function(medium, on) {
+                mediaState: function (medium, on) {
                   Janus.log("Janus " + (on ? "started" : "stopped") + " receiving our " + medium);
                   // FIXME Be aware, in Chrome, this on signal is not always true
                 },
-                webrtcState: function(on) {
+                webrtcState: function (on) {
                   Janus.log("Janus says our WebRTC PeerConnection is " + (on ? "up" : "down") + " now");
                 },
-                onmessage: function(msg, jsep) {
+                onmessage: function (msg, jsep) {
                   Janus.debug(" ::: Got a message (publisher) :::");
                   Janus.debug(msg);
                   Janus.debug(jsep);
@@ -355,15 +355,15 @@ function start() {
                     if (config.mystream && config.mystream.getVideoTracks() && config.mystream.getVideoTracks().length > 0 && !video) {
                       // Video has been rejected
                       Janus.debug("Our video stream has been rejected, viewers won't see us");
-                    // Hide the webcam video
+                      // Hide the webcam video
                     }
                   }
                 },
-                onlocalstream: function(stream) {
+                onlocalstream: function (stream) {
                   Janus.debug(" ::: Got a local stream :::");
                   config.mystream = window.mystream = stream; // attach to global for debugging purpose
                   if (config.mystream.getVideoTracks().length > 0) {
-                    config.mystream.getVideoTracks()[0].onended = function(){
+                    config.mystream.getVideoTracks()[0].onended = function () {
                       if (config.isShareScreenActive && config.publishOwnFeed) {
                         console.log('Put back the webcam');
                         publishOwnFeed({
@@ -379,7 +379,7 @@ function start() {
                   config.onLocalJoin();
                   if (config.onVolumeMeterUpdate) {
                     let ctx = new AudioContext();
-                    let meter = volumeMeter(ctx, { tweenIn:2, tweenOut:6, skip:config.volumeMeterSkip}, (volume) => {
+                    let meter = volumeMeter(ctx, { tweenIn: 2, tweenOut: 6, skip: config.volumeMeterSkip }, (volume) => {
                       config.onVolumeMeterUpdate(0, volume);
                     });
                     let src = ctx.createMediaStreamSource(config.mystream);
@@ -387,13 +387,13 @@ function start() {
                     config.mystream.onended = meter.stop.bind(meter);
                   }
                 },
-                onremotestream: function(stream) {
+                onremotestream: function (stream) {
                   // The publisher stream is sendonly, we don't expect anything here
                 },
-                ondataopen: function(data) {
+                ondataopen: function (data) {
                   console.log('ondataopen');
                 },
-                oncleanup: function() {
+                oncleanup: function () {
                   Janus.log(" ::: Got a cleanup notification: we are unpublished now :::");
                   config.mystream = null;
                 }
@@ -405,22 +405,22 @@ function start() {
                 {
                   plugin: "janus.plugin.recordplay",
                   opaqueId: config.opaqueId,
-                  success: function(pluginHandle) {
+                  success: function (pluginHandle) {
                     config.recordPlayHandler = pluginHandle;
                     Janus.log("Plugin attached! (" + config.recordPlayHandler.getPlugin() + ", id=" + config.recordPlayHandler.getId() + ")");
-                  // Now ready for recording. See startRecording()
+                    // Now ready for recording. See startRecording()
                   },
-                  error: function(error) {
+                  error: function (error) {
                     Janus.error("  -- Error attaching plugin...", error);
                     onError(error)
                   },
-                  consentDialog: function(on) {
+                  consentDialog: function (on) {
                     // Handle consentDialog
                   },
-                  webrtcState: function(on) {
+                  webrtcState: function (on) {
                     Janus.log("Janus says our WebRTC PeerConnection is " + (on ? "up" : "down") + " now");
                   },
-                  onmessage: function(msg, jsep) {
+                  onmessage: function (msg, jsep) {
                     Janus.debug(" ::: Got a message :::");
                     Janus.debug(msg);
                     config.videoRoomHandler.alive = true;
@@ -437,7 +437,7 @@ function start() {
                                 audioSend: false,
                                 videoSend: false
                               }, // We want recvonly audio/video
-                              success: function(jsep) {
+                              success: function (jsep) {
                                 Janus.debug("Got SDP!");
                                 Janus.debug(jsep);
                                 var body = {
@@ -448,7 +448,7 @@ function start() {
                                   "jsep": jsep
                                 });
                               },
-                              error: function(error) {
+                              error: function (error) {
                                 Janus.error("WebRTC error:", error);
                                 alert(JSON.stringify(error));
                               }
@@ -496,48 +496,48 @@ function start() {
                             }
                             alert('Recording completed! Check the list of recordings to replay it.')
                           }
-                        // TODO reset recording session
+                          // TODO reset recording session
                         }
                       }
                     } else {
                       // FIXME Error?
                       var error = msg["error"];
                       alert(error)
-                    //updateRecsList();
+                      //updateRecsList();
                     }
                   },
-                  onlocalstream: function(stream) {
+                  onlocalstream: function (stream) {
                     Janus.debug(" ::: Got a local stream :::");
                     Janus.debug(stream);
                     config.onRecordedPlay()
                   },
-                  onremotestream: function(stream) {
+                  onremotestream: function (stream) {
                     config.recordedplaystream = stream;
                     Janus.debug(" ::: Got a remote stream :::");
                     Janus.debug(stream);
                     config.onRecordedPlay()
                   },
-                  oncleanup: function() {
+                  oncleanup: function () {
                     Janus.log(" ::: Got a cleanup notification :::");
-                  // TODO reset recording session
+                    // TODO reset recording session
                   }
                 });
 
             }
           },
-          error: function(error) {
+          error: function (error) {
             if (config.videoRoomHandler) config.videoRoomHandler.alive = false;
             Janus.error(error);
             config.onError(error);
             reject(error);
           },
-          destroyed: function() {
+          destroyed: function () {
             console.log('Destroyed');
           },
           iceServers: config.iceServers,
         }
       );
-    } catch ( err ) {
+    } catch (err) {
       reject(err);
     }
   });
@@ -550,7 +550,7 @@ function newRemoteFeed(id, display, audio, video) {
     {
       plugin: "janus.plugin.videoroom",
       opaqueId: config.opaqueId,
-      success: function(pluginHandle) {
+      success: function (pluginHandle) {
         remoteFeed = pluginHandle;
         remoteFeed.simulcastStarted = false;
         Janus.log("Plugin attached! (" + remoteFeed.getPlugin() + ", id=" + remoteFeed.getId() + ")");
@@ -592,11 +592,11 @@ function newRemoteFeed(id, display, audio, video) {
         });
 
       },
-      error: function(error) {
+      error: function (error) {
         Janus.error("  -- Error attaching plugin...", error);
         config.onError("Error attaching plugin... " + error);
       },
-      onmessage: function(msg, jsep) {
+      onmessage: function (msg, jsep) {
         Janus.debug(" ::: Got a message (subscriber) :::");
         Janus.debug(msg);
         config.videoRoomHandler.alive = true;
@@ -618,7 +618,7 @@ function newRemoteFeed(id, display, audio, video) {
             remoteFeed.rfdisplay = msg["display"];
             if (remoteFeed.spinner === undefined || remoteFeed.spinner === null) {
               var target = document.getElementById('videoremote' + remoteFeed.rfindex);
-            // Spinner
+              // Spinner
             } else {
               remoteFeed.spinner.spin();
             }
@@ -654,7 +654,7 @@ function newRemoteFeed(id, display, audio, video) {
                 videoSend: false,
                 data: true,
               }, // We want recvonly audio/video
-              success: function(jsep) {
+              success: function (jsep) {
                 Janus.debug("Got SDP!");
                 Janus.debug(jsep);
                 var body = {
@@ -667,32 +667,32 @@ function newRemoteFeed(id, display, audio, video) {
                   "jsep": jsep
                 });
               },
-              error: function(error) {
+              error: function (error) {
                 Janus.error("WebRTC error:", error);
                 config.onError("WebRTC error... " + JSON.stringify(error));
               }
             });
         }
       },
-      webrtcState: function(on) {
+      webrtcState: function (on) {
         Janus.log("Janus says this.WebRTC PeerConnection (feed #" + remoteFeed.rfindex + ") is " + (on ? "up" : "down") + " now");
       },
-      onlocalstream: function(stream) {
+      onlocalstream: function (stream) {
         // The subscriber stream is recvonly, we don't expect anything here
       },
-      ondata: function(data) {
+      ondata: function (data) {
         try {
           data = JSON.parse(data);
           config.onMessage(data);
-        } catch ( err ) {
+        } catch (err) {
           config.onMessage({
             error: `Failed to parse JSON : ${err}`
           });
         }
       },
-      onremotestream: function(stream) {
+      onremotestream: function (stream) {
         Janus.debug("Remote feed #" + remoteFeed.rfindex);
-        
+
         config.remotestreams[remoteFeed.rfindex] = {}
         config.remotestreams[remoteFeed.rfindex].index = remoteFeed.rfindex;
         config.remotestreams[remoteFeed.rfindex].feedId = remoteFeed.getId();
@@ -700,7 +700,7 @@ function newRemoteFeed(id, display, audio, video) {
         config.onRemoteJoin(remoteFeed.rfindex, remoteFeed.rfdisplay, remoteFeed.getId());
         if (config.onVolumeMeterUpdate) {
           let ctx = new AudioContext();
-          let meter = volumeMeter(ctx, { tweenIn:2, tweenOut:6, skip:config.volumeMeterSkip}, (volume) => {
+          let meter = volumeMeter(ctx, { tweenIn: 2, tweenOut: 6, skip: config.volumeMeterSkip }, (volume) => {
             config.onVolumeMeterUpdate(remoteFeed.rfindex, volume);
           });
           let src = ctx.createMediaStreamSource(config.remotestreams[remoteFeed.rfindex].stream);
@@ -709,7 +709,7 @@ function newRemoteFeed(id, display, audio, video) {
           config.remotestreams[remoteFeed.rfindex].feed = remoteFeed;
         }
       },
-      oncleanup: function() {
+      oncleanup: function () {
         Janus.log(" ::: Got a cleanup notification (remote feed " + id + ") :::");
         if (remoteFeed.spinner !== undefined && remoteFeed.spinner !== null) {
           remoteFeed.spinner.stop();
@@ -767,7 +767,7 @@ class Room {
         Janus.init({
           debug: "all",
           extensionId: config.extensionId,
-          callback: function() {
+          callback: function () {
             start()
               .then(() => {
                 resolve();
@@ -777,7 +777,7 @@ class Room {
               });
           }
         });
-      } catch ( err ) {
+      } catch (err) {
         reject(err);
       }
     });
@@ -822,7 +822,7 @@ class Room {
           "message": register
         });
         resolve();
-      } catch ( err ) {
+      } catch (err) {
         reject(err);
       }
     });
@@ -839,7 +839,7 @@ class Room {
           config.videoRoomHandler.muteAudio();
         }
         resolve(config.videoRoomHandler.isAudioMuted());
-      } catch ( err ) {
+      } catch (err) {
         reject(err);
       }
     });
@@ -856,7 +856,7 @@ class Room {
           config.videoRoomHandler.muteVideo();
         }
         resolve(config.videoRoomHandler.isVideoMuted());
-      } catch ( err ) {
+      } catch (err) {
         reject(err);
       }
     });
@@ -900,14 +900,14 @@ class Room {
       try {
         config.videoRoomHandler.data({
           text: JSON.stringify(data),
-          success: function() {
+          success: function () {
             resolve(data);
           },
-          error: function(err) {
+          error: function (err) {
             reject(err);
           },
         });
-      } catch ( err ) {
+      } catch (err) {
         reject(err)
       }
     });
@@ -922,7 +922,7 @@ class Room {
           Janus.attachMediaStream(target, config.remotestreams[index].stream);
         }
         resolve();
-      } catch ( err ) {
+      } catch (err) {
         reject(err);
       }
     });
@@ -942,14 +942,14 @@ class Room {
           // Video tracks from webcam got labeled as "Integrated Camera" or "iSight"
           // TODO collect this label value from various browsers/devices
           (tracks[0].label.toLowerCase().indexOf('monitor') > -1 || // Firefox, "Primary Monitor"
-          tracks[0].label.toLowerCase().indexOf('screen') > -1 || // Chrome, "screen:0:0"
-          tracks[0].label.toLowerCase().indexOf('window:') > -1 // Chrome, "window:37483", window capture
+            tracks[0].label.toLowerCase().indexOf('screen') > -1 || // Chrome, "screen:0:0"
+            tracks[0].label.toLowerCase().indexOf('window:') > -1 // Chrome, "window:37483", window capture
           )
         ) {
           res = true;
         }
         resolve(res)
-      } catch ( err ) {
+      } catch (err) {
         reject(err);
       }
     });
@@ -960,7 +960,7 @@ class Room {
       try {
         Janus.attachMediaStream(target, config.recordedplaystream);
         resolve();
-      } catch ( err ) {
+      } catch (err) {
         reject(err);
       }
     });
@@ -985,7 +985,7 @@ class Room {
             resolve();
           });
         }, 500);
-      } catch ( err ) {
+      } catch (err) {
         reject(err);
       }
     });
@@ -1007,7 +1007,7 @@ class Room {
             resolve()
           });
         }, 500);
-      } catch ( err ) {
+      } catch (err) {
         reject(err);
       }
     });
@@ -1030,10 +1030,12 @@ class Room {
       try {
         options = options || {}
         config.room = options.room || null
+        var publishers = options.publishers || 3
         // TODO handle room's secret
         var body = {
           "request": "create",
           "room": config.room,
+          "publishers": publishers
         };
         if (config.token) body.token = config.token;
         config.videoRoomHandler.send({
@@ -1041,7 +1043,7 @@ class Room {
         });
         // TODO catch the response
         resolve();
-      } catch ( err ) {
+      } catch (err) {
         reject(err);
       }
     });
@@ -1060,7 +1062,7 @@ class Room {
           "message": body,
         });
         resolve();
-      } catch ( err ) {
+      } catch (err) {
         reject(err);
       }
     });
@@ -1074,10 +1076,10 @@ class Room {
       Janus.debug("Sending message (" + JSON.stringify(body) + ")");
       config.recordPlayHandler.send({
         "message": body,
-        success: function(result) {
+        success: function (result) {
           resolve(result);
         },
-        error: function(err) {
+        error: function (err) {
           reject(err);
         }
       });
@@ -1106,10 +1108,10 @@ class Room {
           .then(() => {
             config.recordPlayHandler.send({
               "message": play,
-              success: function() {
+              success: function () {
                 resolve();
               },
-              error: function(err) {
+              error: function (err) {
                 reject(err);
               }
             });
@@ -1120,10 +1122,10 @@ class Room {
       } else {
         config.recordPlayHandler.send({
           "message": play,
-          success: function() {
+          success: function () {
             resolve();
           },
-          error: function(err) {
+          error: function (err) {
             reject(err);
           }
         });
@@ -1143,10 +1145,10 @@ class Room {
         };
         config.recordPlayHandler.send({
           "message": stop,
-          success: function() {
+          success: function () {
             resolve();
           },
-          error: function(err) {
+          error: function (err) {
             reject(err);
           }
         });
@@ -1165,7 +1167,7 @@ class Room {
             reject(new Error('No such stream index: ' + streamIndex));
           }
         }
-      } catch(e) {
+      } catch (e) {
         reject(e);
       }
     });
@@ -1173,14 +1175,14 @@ class Room {
   getStreamBitrate(streamIndex) {
     return new Promise((resolve, reject) => {
       try {
-        if (config.remotestreams[streamIndex] && config.remotestreams[streamIndex].feed && ''+streamIndex !== '0') {
+        if (config.remotestreams[streamIndex] && config.remotestreams[streamIndex].feed && '' + streamIndex !== '0') {
           resolve(config.remotestreams[streamIndex].feed.getBitrate());
-        } else if (config.videoRoomHandler && ''+streamIndex === '0') {
+        } else if (config.videoRoomHandler && '' + streamIndex === '0') {
           resolve(config.videoRoomHandler.alive ? true : false);
         } else {
           reject(new Error('No such stream index: ' + streamIndex));
         }
-      } catch(e) {
+      } catch (e) {
         reject(e);
       }
     });
@@ -1188,9 +1190,9 @@ class Room {
 
   // TODO Fix me.
   // Helpers to create Simulcast-related UI, if enabled
-  addSimulcastButtons(feed, temporal) {}
+  addSimulcastButtons(feed, temporal) { }
 
-  updateSimulcastButtons(feed, substream, temporal) {}
+  updateSimulcastButtons(feed, substream, temporal) { }
 
 }
 
