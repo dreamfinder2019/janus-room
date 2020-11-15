@@ -758,14 +758,16 @@ class Room {
   }
 
 
-  init() {
+  init(options) {
     return new Promise((resolve, reject) => {
       try {
         if (!config.server) {
           throw 'server value is needed.';
         }
+
+        let debug = !options.debug ? options.debug : 'all';
         Janus.init({
-          debug: "all",
+          debug: debug,
           extensionId: config.extensionId,
           callback: function () {
             start()
